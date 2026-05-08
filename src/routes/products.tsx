@@ -52,7 +52,7 @@ function ProductsPage() {
   });
 
   const setSearch = (next: Partial<Search>) =>
-    navigate({ search: (prev) => ({ ...prev, ...next }) });
+    navigate({ search: (prev: Search) => ({ ...prev, ...next }) });
 
   const headline = useMemo(() => {
     if (search.q) return `Results for "${search.q}"`;
