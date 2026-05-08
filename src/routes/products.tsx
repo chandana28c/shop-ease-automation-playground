@@ -1,0 +1,180 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { apiListProducts } from "@/lib/mockApi";
+import { CATEGORIES, type Category } from "@/lib/products";
+import { formatPrice } from "@/lib/format";
+
+interface Search {
+  q?: string;
+  category?: Category | "all";
+  sort?: "price-asc" | "price-desc" | "rating-desc";
+}
+
+export const Route = createFileRoute("/products")({
+  component: ProductsPage,
+  validateSearch: (s: Record<string, unknown>): Search => ({
+    q: typeof s.q === "string" ? s.q : undefined,
+    category:
+      s.category === "electronics" ||
+      s.category === "apparel" ||
+      s.category === "home" ||
+      s.category === "books" ||
+      s.category === "all"
+        ? (s.category as Search["category"])
+        : "all",
+    sort:
+      s.sort === "price-asc" || s.sort === "price-desc" || s.sort === "rating-desc"
+        ? (s.sort as Search["sort"])
+        : undefined,
+  }),
+  head: () => ({
+    meta: [
+      { title: "All Products — ShopEase" },
+      { name: "description", content: "Search and filter our full catalog." },
+    ],
+  }),
+});
+
+function ProductsPage() {
+  const search = Route.useSearch();
+  const navigate = Route.useNavigate();
+  const [searchInput, setSearchInput] = useState(search.q ?? "");
+
+  const { data: products = [], isLoading, error } = useQuery({
+    queryKey: ["products", search.q ?? "", search.category ?? "all", search.sort ?? "default"],
+    queryFn: () =>
+      apiListProducts({
+        search: search.q,
+        category: search.category,
+        sort: search.sort,
+      }),
+  });
+
+  const setSearch = (next: Partial<Search>) =>
+    navigate({ search: (prev) => ({ ...prev, ...next }) });
+
+  const headline = useMemo(() => {
+    if (search.q) return `Results for "${search.q}"`;
+    if (search.category && search.category !== "all") {
+      return CATEGORIES.find((c) => c.slug === search.category)?.label ?? "Products";
+    }
+    return "All products";
+  }, [search]);
+
+  return (
+    <div className="mx-auto max-w-6xl px-4 py-10 animate-fade-in" data-testid="products-page">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <h1 className="text-3xl font-bold">{headline}</h1>
+        <p className="text-sm text-muted-foreground" data-testid="results-count">
+          {isLoading ? "…" : `${products.length} product${products.length === 1 ? "" : "s"}`}
+        </p>
+      </div>
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          setSearch({ q: searchInput || undefined });
+        }}
+        className="mb-6 flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:flex-row"
+      >
+        <input
+          type="search"
+          placeholder="Search products…"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          data-testid="search-input"
+          aria-label="Search products"
+          className="w-full flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-ring/30"
+        />
+        <select
+          value={search.category ?? "all"}
+          onChange={(e) => setSearch({ category: e.target.value as Search["category"] })}
+          data-testid="category-select"
+          aria-label="Filter by category"
+          className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+        >
+          <option value="all">All categories</option>
+          {CATEGORIES.map((c) => (
+            <option key={c.slug} value={c.slug}>{c.label}</option>
+          ))}
+        </select>
+        <select
+          value={search.sort ?? ""}
+          onChange={(e) =>
+            setSearch({ sort: (e.target.value || undefined) as Search["sort"] })
+          }
+          data-testid="sort-select"
+          aria-label="Sort products"
+          className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+        >
+          <option value="">Sort: Featured</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="rating-desc">Top Rated</option>
+        </select>
+        <button
+          type="submit"
+          data-testid="search-submit-btn"
+          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+        >
+          Search
+        </button>
+      </form>
+
+      {isLoading && (
+        <div data-testid="loading-spinner" className="py-16 text-center text-muted-foreground">
+          Loading products…
+        </div>
+      )}
+      {error && (
+        <div data-testid="error-message" className="rounded-md border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+          {(error as Error).message}
+        </div>
+      )}
+      {!isLoading && products.length === 0 && (
+        <div
+          data-testid="no-results"
+          className="rounded-xl border border-border bg-card py-16 text-center text-muted-foreground"
+        >
+          No products match your filters.
+        </div>
+      )}
+
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" data-testid="product-grid">
+        {products.map((p) => (
+          <Link
+            key={p.id}
+            to="/products/$id"
+            params={{ id: p.id }}
+            data-testid="product-card"
+            data-product-id={p.id}
+            data-product-name={p.name}
+            className="group overflow-hidden rounded-xl border border-border bg-card transition-all hover:border-primary hover:shadow-md"
+          >
+            <div className="aspect-[4/3] overflow-hidden bg-secondary">
+              <img
+                src={p.image}
+                alt={p.name}
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+            </div>
+            <div className="p-4">
+              <p className="text-xs uppercase tracking-wider text-muted-foreground">
+                {CATEGORIES.find((c) => c.slug === p.category)?.label}
+              </p>
+              <h3 className="mt-1 line-clamp-1 font-medium" data-testid="product-name">{p.name}</h3>
+              <div className="mt-2 flex items-center justify-between">
+                <span className="font-semibold text-primary" data-testid="product-price">
+                  {formatPrice(p.price)}
+                </span>
+                <span className="text-xs text-muted-foreground">★ {p.rating.toFixed(1)}</span>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
