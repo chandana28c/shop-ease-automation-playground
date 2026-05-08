@@ -19,6 +19,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductsIdRouteImport } from './routes/products.$id'
 import { Route as OrdersIdRouteImport } from './routes/orders.$id'
 import { Route as OrderSuccessIdRouteImport } from './routes/order-success.$id'
+import { Route as ApiOrdersEmailRouteImport } from './routes/api/orders/email'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
@@ -70,6 +71,11 @@ const OrderSuccessIdRoute = OrderSuccessIdRouteImport.update({
   path: '/order-success/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiOrdersEmailRoute = ApiOrdersEmailRouteImport.update({
+  id: '/api/orders/email',
+  path: '/api/orders/email',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/order-success/$id': typeof OrderSuccessIdRoute
   '/orders/$id': typeof OrdersIdRoute
   '/products/$id': typeof ProductsIdRoute
+  '/api/orders/email': typeof ApiOrdersEmailRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/order-success/$id': typeof OrderSuccessIdRoute
   '/orders/$id': typeof OrdersIdRoute
   '/products/$id': typeof ProductsIdRoute
+  '/api/orders/email': typeof ApiOrdersEmailRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -107,6 +115,7 @@ export interface FileRoutesById {
   '/order-success/$id': typeof OrderSuccessIdRoute
   '/orders/$id': typeof OrdersIdRoute
   '/products/$id': typeof ProductsIdRoute
+  '/api/orders/email': typeof ApiOrdersEmailRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +130,7 @@ export interface FileRouteTypes {
     | '/order-success/$id'
     | '/orders/$id'
     | '/products/$id'
+    | '/api/orders/email'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -133,6 +143,7 @@ export interface FileRouteTypes {
     | '/order-success/$id'
     | '/orders/$id'
     | '/products/$id'
+    | '/api/orders/email'
   id:
     | '__root__'
     | '/'
@@ -145,6 +156,7 @@ export interface FileRouteTypes {
     | '/order-success/$id'
     | '/orders/$id'
     | '/products/$id'
+    | '/api/orders/email'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -156,6 +168,7 @@ export interface RootRouteChildren {
   ProductsRoute: typeof ProductsRouteWithChildren
   RegisterRoute: typeof RegisterRoute
   OrderSuccessIdRoute: typeof OrderSuccessIdRoute
+  ApiOrdersEmailRoute: typeof ApiOrdersEmailRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -230,6 +243,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrderSuccessIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/orders/email': {
+      id: '/api/orders/email'
+      path: '/api/orders/email'
+      fullPath: '/api/orders/email'
+      preLoaderRoute: typeof ApiOrdersEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -265,6 +285,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProductsRoute: ProductsRouteWithChildren,
   RegisterRoute: RegisterRoute,
   OrderSuccessIdRoute: OrderSuccessIdRoute,
+  ApiOrdersEmailRoute: ApiOrdersEmailRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
