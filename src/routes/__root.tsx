@@ -33,6 +33,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "ShopEase — Modern E-Commerce" },
+      { name: "description", content: "ShopEase is a full-stack e-commerce application built for automation testing practice." },
+      { property: "og:description", content: "ShopEase is a full-stack e-commerce application built for automation testing practice." },
+      { name: "twitter:description", content: "ShopEase is a full-stack e-commerce application built for automation testing practice." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e9c6a82f-c176-42fd-a826-00cea0dc7c10/id-preview-9abbe7a2--edafe073-64f1-47fd-8d95-9ffc73e56884.lovable.app-1778244746219.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/e9c6a82f-c176-42fd-a826-00cea0dc7c10/id-preview-9abbe7a2--edafe073-64f1-47fd-8d95-9ffc73e56884.lovable.app-1778244746219.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
