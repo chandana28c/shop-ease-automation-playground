@@ -41,6 +41,7 @@ export const Route = createFileRoute("/products")({
 function ProductsPage() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
+  const { addToCart } = useApp();
   const [searchInput, setSearchInput] = useState(search.q ?? "");
 
   const { data: products = [], isLoading, error } = useQuery({
