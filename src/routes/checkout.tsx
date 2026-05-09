@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useApp } from "@/context/AppContext";
 import { apiPlaceOrder } from "@/lib/mockApi";
+import { sendOrderConfirmationEmail } from "@/lib/emailjs";
 import { formatPrice } from "@/lib/format";
 import type { ShippingInfo } from "@/lib/types";
 
