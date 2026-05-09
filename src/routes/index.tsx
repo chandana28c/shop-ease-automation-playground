@@ -20,6 +20,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
+  const { addToCart } = useApp();
   const { data: featured = [], isLoading } = useQuery({
     queryKey: ["products", "featured"],
     queryFn: () => apiListProducts({ sort: "rating-desc" }).then((p) => p.slice(0, 6)),
