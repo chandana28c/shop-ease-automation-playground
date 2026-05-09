@@ -52,27 +52,13 @@ function CheckoutPage() {
     setSubmitting(true);
     try {
       const order = await apiPlaceOrder({ user: user!, items: cart, shipping });
-      // Fire-and-forget email request — failure must not block UX.
-      try {
-        await fetch("/api/orders/email", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            orderId: order.id,
-            email: user!.email,
-            customerName: order.customerName,
-            items: order.items.map((i) => ({
-              name: i.product.name,
-              quantity: i.quantity,
-              price: i.product.price,
-            })),
-            total: order.total,
-            estimatedDelivery: order.estimatedDelivery,
-          }),
+      // Fire-and-forget order-confirmation email via EmailJS — non-blocking.
+      sendOrderConfirmationEmail(order, user!.email)
+        .then(() => toast.success("Confirmation email sent"))
+        .catch((err) => {
+          console.warn("EmailJS send failed:", err);
+          toast.message("Order placed — email could not be sent");
         });
-      } catch {
-        /* email is non-blocking */
-      }
       clearCart();
       router.navigate({ to: "/order-success/$id", params: { id: order.id } });
     } catch (err) {
