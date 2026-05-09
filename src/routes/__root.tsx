@@ -86,17 +86,45 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AppProvider>
-        <div className="flex min-h-screen flex-col">
-          <Header />
-          <main className="flex-1">
-            <Outlet />
-          </main>
-          <Footer />
-        </div>
+        <AuthGate>
+          <div className="flex min-h-screen flex-col">
+            <Header />
+            <main className="flex-1">
+              <Outlet />
+            </main>
+            <Footer />
+          </div>
+        </AuthGate>
         <Toaster richColors position="top-right" />
       </AppProvider>
     </QueryClientProvider>
   );
+}
+
+function AuthGate({ children }: { children: React.ReactNode }) {
+  const { user, authLoading } = useApp();
+  const router = useRouter();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isPublic = PUBLIC_PATHS.includes(pathname);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user && !isPublic) {
+      router.navigate({ to: "/login", search: { redirect: pathname } as never });
+    }
+  }, [user, authLoading, isPublic, pathname, router]);
+
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground">
+        Loading…
+      </div>
+    );
+  }
+  if (!user && !isPublic) {
+    return null;
+  }
+  return <>{children}</>;
 }
 
 function Header() {
