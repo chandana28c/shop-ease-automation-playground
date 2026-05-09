@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
 import { apiListProducts } from "@/lib/mockApi";
 import { CATEGORIES, type Category } from "@/lib/products";
 import { formatPrice } from "@/lib/format";
+import { useApp } from "@/context/AppContext";
 
 interface Search {
   q?: string;
