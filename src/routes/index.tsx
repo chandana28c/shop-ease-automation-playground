@@ -1,8 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { apiListProducts } from "@/lib/mockApi";
 import { CATEGORIES } from "@/lib/products";
 import { formatPrice } from "@/lib/format";
+import { useApp } from "@/context/AppContext";
 
 export const Route = createFileRoute("/")({
   component: Home,
