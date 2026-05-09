@@ -174,6 +174,19 @@ function ProductsPage() {
                 </span>
                 <span className="text-xs text-muted-foreground">★ {p.rating.toFixed(1)}</span>
               </div>
+              <button
+                type="button"
+                data-testid="add-to-cart-btn"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  addToCart(p, 1);
+                  toast.success("Added to cart");
+                }}
+                className="mt-3 w-full rounded-md bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+              >
+                Add to cart
+              </button>
             </div>
           </Link>
         ))}
