@@ -151,6 +151,113 @@ function CheckoutPage() {
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             />
           </div>
+
+          <div className="border-t border-border pt-5">
+            <h2 className="text-lg font-semibold">Payment method</h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Demo only — no real payment provider is contacted. Use any test data.
+            </p>
+            <div role="radiogroup" className="mt-3 grid gap-2 sm:grid-cols-3" data-testid="payment-method-group">
+              {([
+                { id: "card", label: "Credit / Debit card" },
+                { id: "upi", label: "UPI" },
+                { id: "cod", label: "Cash on delivery" },
+              ] as const).map((m) => (
+                <label
+                  key={m.id}
+                  data-testid={`payment-method-${m.id}`}
+                  className={`flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm ${
+                    paymentMethod === m.id
+                      ? "border-primary bg-primary/5"
+                      : "border-input bg-background"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="payment-method"
+                    value={m.id}
+                    checked={paymentMethod === m.id}
+                    onChange={() => setPaymentMethod(m.id)}
+                    className="accent-primary"
+                  />
+                  {m.label}
+                </label>
+              ))}
+            </div>
+
+            {paymentMethod === "card" && (
+              <div className="mt-4 grid gap-3" data-testid="card-fields">
+                <div>
+                  <label className="mb-1 block text-sm font-medium" htmlFor="card-number">Card number</label>
+                  <input
+                    id="card-number"
+                    data-testid="card-number-input"
+                    inputMode="numeric"
+                    placeholder="4242 4242 4242 4242"
+                    value={card.number}
+                    onChange={(e) => setCard((c) => ({ ...c, number: e.target.value }))}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="mb-1 block text-sm font-medium" htmlFor="card-name">Name on card</label>
+                  <input
+                    id="card-name"
+                    data-testid="card-name-input"
+                    value={card.name}
+                    onChange={(e) => setCard((c) => ({ ...c, name: e.target.value }))}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  />
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <label className="mb-1 block text-sm font-medium" htmlFor="card-expiry">Expiry (MM/YY)</label>
+                    <input
+                      id="card-expiry"
+                      data-testid="card-expiry-input"
+                      placeholder="08/29"
+                      value={card.expiry}
+                      onChange={(e) => setCard((c) => ({ ...c, expiry: e.target.value }))}
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-sm font-medium" htmlFor="card-cvc">CVC</label>
+                    <input
+                      id="card-cvc"
+                      data-testid="card-cvc-input"
+                      inputMode="numeric"
+                      placeholder="123"
+                      value={card.cvc}
+                      onChange={(e) => setCard((c) => ({ ...c, cvc: e.target.value }))}
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {paymentMethod === "upi" && (
+              <div className="mt-4" data-testid="upi-fields">
+                <label className="mb-1 block text-sm font-medium" htmlFor="upi-id">UPI ID</label>
+                <input
+                  id="upi-id"
+                  data-testid="upi-id-input"
+                  placeholder="yourname@bank"
+                  value={upiId}
+                  onChange={(e) => setUpiId(e.target.value)}
+                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                />
+              </div>
+            )}
+
+            {paymentMethod === "cod" && (
+              <p className="mt-4 rounded-md border border-border bg-muted/40 p-3 text-sm text-muted-foreground" data-testid="cod-note">
+                Pay with cash when your order is delivered.
+              </p>
+            )}
+          </div>
+
           {error && (
             <p data-testid="checkout-error" className="rounded-md border border-destructive/40 bg-destructive/10 p-2 text-sm text-destructive">
               {error}
