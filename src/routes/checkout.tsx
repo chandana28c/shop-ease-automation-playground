@@ -22,6 +22,9 @@ function CheckoutPage() {
     zip: "",
     country: "United States",
   });
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "upi" | "cod">("card");
+  const [card, setCard] = useState({ number: "", name: "", expiry: "", cvc: "" });
+  const [upiId, setUpiId] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,6 +51,23 @@ function CheckoutPage() {
     if (!shipping.fullName || !shipping.address || !shipping.city || !shipping.zip) {
       setError("Please fill in every shipping field");
       return;
+    }
+    // Mock payment validation — no real processor is contacted.
+    if (paymentMethod === "card") {
+      const digits = card.number.replace(/\s+/g, "");
+      if (!/^\d{12,19}$/.test(digits)) {
+        setError("Enter a valid card number (12–19 digits)");
+        return;
+      }
+      if (!card.name.trim()) { setError("Enter the name on the card"); return; }
+      if (!/^\d{2}\/\d{2}$/.test(card.expiry)) {
+        setError("Expiry must be in MM/YY format"); return;
+      }
+      if (!/^\d{3,4}$/.test(card.cvc)) { setError("CVC must be 3 or 4 digits"); return; }
+    } else if (paymentMethod === "upi") {
+      if (!/^[\w.\-]+@[\w]+$/.test(upiId)) {
+        setError("Enter a valid UPI ID, e.g. name@bank"); return;
+      }
     }
     setSubmitting(true);
     try {
