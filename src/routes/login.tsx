@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useApp } from "@/context/AppContext";
 
@@ -19,8 +19,21 @@ function LoginPage() {
   const { redirect } = Route.useSearch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Prefill remembered credentials saved at registration / previous login.
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem("shopease_remember");
+      if (raw) {
+        const saved = JSON.parse(raw) as { email?: string; password?: string };
+        if (saved.email) setEmail(saved.email);
+        if (saved.password) setPassword(saved.password);
+      }
+    } catch { /* ignore */ }
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -32,6 +45,16 @@ function LoginPage() {
     setLoading(true);
     try {
       await login(email, password);
+      try {
+        if (remember) {
+          localStorage.setItem(
+            "shopease_remember",
+            JSON.stringify({ email, password }),
+          );
+        } else {
+          localStorage.removeItem("shopease_remember");
+        }
+      } catch { /* ignore */ }
       toast.success("Welcome back!");
       router.navigate({ to: redirect ?? "/" });
     } catch (err) {

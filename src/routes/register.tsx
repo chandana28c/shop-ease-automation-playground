@@ -28,6 +28,13 @@ function RegisterPage() {
     setLoading(true);
     try {
       await register(email, password, name.trim());
+      // Remember credentials so the login page can prefill them next time.
+      try {
+        localStorage.setItem(
+          "shopease_remember",
+          JSON.stringify({ email, password }),
+        );
+      } catch { /* ignore */ }
       toast.success("Account created");
       router.navigate({ to: "/" });
     } catch (err) {
