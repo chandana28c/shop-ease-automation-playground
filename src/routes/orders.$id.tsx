@@ -95,7 +95,13 @@ function OrderDetail() {
             </div>
             <div className="flex justify-between">
               <dt className="text-muted-foreground">Shipping</dt>
-              <dd className="text-success">Free</dd>
+              <dd>
+                {order.shipping === 0 ? (
+                  <span className="text-success">Free</span>
+                ) : (
+                  formatPrice(order.shipping)
+                )}
+              </dd>
             </div>
             <div className="mt-2 flex justify-between border-t border-border pt-2 text-base font-semibold">
               <dt>Total</dt>

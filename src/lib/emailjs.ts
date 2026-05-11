@@ -16,12 +16,8 @@ const PUBLIC_KEY = "LJLEk2fCXcpRT17KB";
  *   {{cost.shipping}}, {{cost.tax}}, {{cost.total}}
  */
 export async function sendOrderConfirmationEmail(order: Order, toEmail: string) {
-  const subtotal = order.items.reduce(
-    (s, i) => s + i.product.price * i.quantity,
-    0,
-  );
-  const shipping = 0;
-  const tax = +(subtotal * 0.0).toFixed(2); // no tax in mock app
+  const shipping = order.shipping;
+  const tax = 0; // no tax in mock app
   const total = order.total;
 
   const templateParams = {

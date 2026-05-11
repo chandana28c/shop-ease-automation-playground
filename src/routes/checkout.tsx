@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { useApp } from "@/context/AppContext";
 import { apiPlaceOrder } from "@/lib/mockApi";
 import { sendOrderConfirmationEmail } from "@/lib/emailjs";
-import { formatPrice } from "@/lib/format";
+import { formatPrice, calcShipping } from "@/lib/format";
 import type { ShippingInfo } from "@/lib/types";
 
 export const Route = createFileRoute("/checkout")({
@@ -20,7 +20,7 @@ function CheckoutPage() {
     address: "",
     city: "",
     zip: "",
-    country: "United States",
+    country: "India",
   });
   const [paymentMethod, setPaymentMethod] = useState<"card" | "upi" | "cod">("card");
   const [card, setCard] = useState({ number: "", name: "", expiry: "", cvc: "" });
@@ -269,7 +269,9 @@ function CheckoutPage() {
             data-testid="checkout-submit-btn"
             className="mt-2 w-full rounded-md bg-primary py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-60"
           >
-            {submitting ? "Placing order…" : `Place order — ${formatPrice(cartSubtotal)}`}
+            {submitting
+              ? "Placing order…"
+              : `Place order — ${formatPrice(cartSubtotal + calcShipping(cartSubtotal))}`}
           </button>
         </form>
 
@@ -292,11 +294,19 @@ function CheckoutPage() {
             </div>
             <div className="flex justify-between">
               <dt className="text-muted-foreground">Shipping</dt>
-              <dd className="text-success">Free</dd>
+              <dd data-testid="checkout-shipping">
+                {calcShipping(cartSubtotal) === 0 ? (
+                  <span className="text-success">Free</span>
+                ) : (
+                  formatPrice(calcShipping(cartSubtotal))
+                )}
+              </dd>
             </div>
             <div className="mt-2 flex justify-between border-t border-border pt-2 text-base font-semibold">
               <dt>Total</dt>
-              <dd data-testid="checkout-total">{formatPrice(cartSubtotal)}</dd>
+              <dd data-testid="checkout-total">
+                {formatPrice(cartSubtotal + calcShipping(cartSubtotal))}
+              </dd>
             </div>
           </dl>
         </aside>
