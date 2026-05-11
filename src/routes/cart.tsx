@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useApp } from "@/context/AppContext";
-import { formatPrice } from "@/lib/format";
+import { formatPrice, calcShipping, FREE_SHIPPING_THRESHOLD } from "@/lib/format";
 
 export const Route = createFileRoute("/cart")({
   component: CartPage,
@@ -117,11 +117,24 @@ function CartPage() {
             </div>
             <div className="flex justify-between">
               <dt className="text-muted-foreground">Shipping</dt>
-              <dd className="text-success">Free</dd>
+              <dd data-testid="cart-shipping">
+                {calcShipping(cartSubtotal) === 0 ? (
+                  <span className="text-success">Free</span>
+                ) : (
+                  formatPrice(calcShipping(cartSubtotal))
+                )}
+              </dd>
             </div>
+            {calcShipping(cartSubtotal) > 0 && (
+              <p className="text-xs text-muted-foreground">
+                Add {formatPrice(FREE_SHIPPING_THRESHOLD - cartSubtotal)} more for free shipping.
+              </p>
+            )}
             <div className="mt-3 flex justify-between border-t border-border pt-3 text-base font-semibold">
               <dt>Total</dt>
-              <dd data-testid="cart-total">{formatPrice(cartSubtotal)}</dd>
+              <dd data-testid="cart-total">
+                {formatPrice(cartSubtotal + calcShipping(cartSubtotal))}
+              </dd>
             </div>
           </dl>
           <Link
