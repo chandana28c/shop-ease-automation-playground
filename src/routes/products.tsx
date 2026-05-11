@@ -3,33 +3,50 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { apiListProducts } from "@/lib/mockApi";
-import { CATEGORIES, type Category } from "@/lib/products";
+import {
+  CATEGORIES,
+  SUBCATEGORY_TO_CATEGORY,
+  type Category,
+  type Subcategory,
+} from "@/lib/products";
 import { formatPrice } from "@/lib/format";
 import { useApp } from "@/context/AppContext";
 
 interface Search {
   q?: string;
   category?: Category | "all";
+  subcategory?: Subcategory | "all";
   sort?: "price-asc" | "price-desc" | "rating-desc";
 }
 
+const ALL_SUBCATS: Subcategory[] = Object.keys(SUBCATEGORY_TO_CATEGORY) as Subcategory[];
+
 export const Route = createFileRoute("/products")({
   component: ProductsPage,
-  validateSearch: (s: Record<string, unknown>): Search => ({
-    q: typeof s.q === "string" ? s.q : undefined,
-    category:
+  validateSearch: (s: Record<string, unknown>): Search => {
+    const cat =
       s.category === "electronics" ||
       s.category === "apparel" ||
       s.category === "home" ||
       s.category === "books" ||
       s.category === "all"
         ? (s.category as Search["category"])
-        : "all",
-    sort:
-      s.sort === "price-asc" || s.sort === "price-desc" || s.sort === "rating-desc"
-        ? (s.sort as Search["sort"])
-        : undefined,
-  }),
+        : "all";
+    const sub = typeof s.subcategory === "string" && (ALL_SUBCATS as string[]).includes(s.subcategory)
+      ? (s.subcategory as Subcategory)
+      : s.subcategory === "all"
+        ? "all"
+        : undefined;
+    return {
+      q: typeof s.q === "string" ? s.q : undefined,
+      category: cat,
+      subcategory: sub,
+      sort:
+        s.sort === "price-asc" || s.sort === "price-desc" || s.sort === "rating-desc"
+          ? (s.sort as Search["sort"])
+          : undefined,
+    };
+  },
   head: () => ({
     meta: [
       { title: "All Products — ShopEase" },
@@ -45,11 +62,18 @@ function ProductsPage() {
   const [searchInput, setSearchInput] = useState(search.q ?? "");
 
   const { data: products = [], isLoading, error } = useQuery({
-    queryKey: ["products", search.q ?? "", search.category ?? "all", search.sort ?? "default"],
+    queryKey: [
+      "products",
+      search.q ?? "",
+      search.category ?? "all",
+      search.subcategory ?? "all",
+      search.sort ?? "default",
+    ],
     queryFn: () =>
       apiListProducts({
         search: search.q,
         category: search.category,
+        subcategory: search.subcategory,
         sort: search.sort,
       }),
   });
@@ -57,8 +81,18 @@ function ProductsPage() {
   const setSearch = (next: Partial<Search>) =>
     navigate({ search: (prev: Search) => ({ ...prev, ...next }) });
 
+  // Subcategory options for the currently selected category.
+  const activeCategory = CATEGORIES.find((c) => c.slug === search.category);
+  const subOptions = activeCategory?.subcategories ?? [];
+
   const headline = useMemo(() => {
     if (search.q) return `Results for "${search.q}"`;
+    if (search.subcategory && search.subcategory !== "all") {
+      const subLabel = CATEGORIES.flatMap((c) => c.subcategories).find(
+        (s) => s.slug === search.subcategory,
+      )?.label;
+      if (subLabel) return subLabel;
+    }
     if (search.category && search.category !== "all") {
       return CATEGORIES.find((c) => c.slug === search.category)?.label ?? "Products";
     }
@@ -79,7 +113,7 @@ function ProductsPage() {
           e.preventDefault();
           setSearch({ q: searchInput || undefined });
         }}
-        className="mb-6 flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:flex-row"
+        className="mb-6 flex flex-col gap-3 rounded-xl border border-border bg-card p-4 sm:flex-row sm:flex-wrap"
       >
         <input
           type="search"
@@ -92,7 +126,12 @@ function ProductsPage() {
         />
         <select
           value={search.category ?? "all"}
-          onChange={(e) => setSearch({ category: e.target.value as Search["category"] })}
+          onChange={(e) =>
+            setSearch({
+              category: e.target.value as Search["category"],
+              subcategory: undefined,
+            })
+          }
           data-testid="category-select"
           aria-label="Filter by category"
           className="rounded-md border border-input bg-background px-3 py-2 text-sm"
@@ -102,6 +141,22 @@ function ProductsPage() {
             <option key={c.slug} value={c.slug}>{c.label}</option>
           ))}
         </select>
+        {subOptions.length > 0 && (
+          <select
+            value={search.subcategory ?? "all"}
+            onChange={(e) =>
+              setSearch({ subcategory: e.target.value as Search["subcategory"] })
+            }
+            data-testid="subcategory-select"
+            aria-label="Filter by subcategory"
+            className="rounded-md border border-input bg-background px-3 py-2 text-sm"
+          >
+            <option value="all">All subcategories</option>
+            {subOptions.map((s) => (
+              <option key={s.slug} value={s.slug}>{s.label}</option>
+            ))}
+          </select>
+        )}
         <select
           value={search.sort ?? ""}
           onChange={(e) =>
@@ -166,6 +221,8 @@ function ProductsPage() {
             <div className="p-4">
               <p className="text-xs uppercase tracking-wider text-muted-foreground">
                 {CATEGORIES.find((c) => c.slug === p.category)?.label}
+                {" · "}
+                {CATEGORIES.flatMap((c) => c.subcategories).find((s) => s.slug === p.subcategory)?.label}
               </p>
               <h3 className="mt-1 line-clamp-1 font-medium" data-testid="product-name">{p.name}</h3>
               <div className="mt-2 flex items-center justify-between">
