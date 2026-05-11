@@ -37,7 +37,7 @@ function Home() {
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:py-20 md:grid-cols-2 md:items-center">
           <div>
             <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">
-              New season · Free shipping
+              New season · Free shipping over ₹2,000
             </p>
             <h1 className="text-4xl font-bold leading-tight sm:text-5xl md:text-6xl">
               Things worth <span className="text-primary">buying</span>,
@@ -78,19 +78,35 @@ function Home() {
       {/* Categories */}
       <section className="mx-auto max-w-6xl px-4 py-12">
         <h2 className="mb-6 text-2xl font-semibold">Shop by category</h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {CATEGORIES.map((c) => (
-            <Link
+            <div
               key={c.slug}
-              to="/products"
-              search={{ category: c.slug } as never}
               data-testid={`category-card-${c.slug}`}
-              className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 text-center transition-all hover:border-primary hover:shadow-md"
+              className="rounded-xl border border-border bg-card p-5 transition-all hover:border-primary hover:shadow-md"
             >
-              <p className="text-base font-semibold text-foreground transition-colors group-hover:text-primary">
-                {c.label}
-              </p>
-            </Link>
+              <Link
+                to="/products"
+                search={{ category: c.slug } as never}
+                className="text-base font-semibold text-foreground hover:text-primary"
+              >
+                {c.label} →
+              </Link>
+              <ul className="mt-3 space-y-1 text-sm">
+                {c.subcategories.map((s) => (
+                  <li key={s.slug}>
+                    <Link
+                      to="/products"
+                      search={{ category: c.slug, subcategory: s.slug } as never}
+                      data-testid={`subcategory-link-${s.slug}`}
+                      className="text-muted-foreground hover:text-primary"
+                    >
+                      {s.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           ))}
         </div>
       </section>
