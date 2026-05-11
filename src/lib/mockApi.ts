@@ -1,6 +1,7 @@
 // Browser-side mock REST API. Simulates latency so the UI behaves like
 // a real network client (loading spinners, error states, etc.).
-import { PRODUCTS, type Category, type Product } from "./products";
+import { PRODUCTS, type Category, type Product, type Subcategory } from "./products";
+import { calcShipping } from "./format";
 import type { AuthUser, CartItem, Order, ShippingInfo } from "./types";
 
 const delay = (ms = 350) => new Promise((r) => setTimeout(r, ms));
@@ -89,6 +90,7 @@ export function getStoredAuth(): { token: string | null; user: AuthUser | null }
 export async function apiListProducts(opts: {
   search?: string;
   category?: Category | "all";
+  subcategory?: Subcategory | "all";
   sort?: "price-asc" | "price-desc" | "rating-desc";
   maxPrice?: number;
 } = {}): Promise<Product[]> {
@@ -104,6 +106,9 @@ export async function apiListProducts(opts: {
   }
   if (opts.category && opts.category !== "all") {
     list = list.filter((p) => p.category === opts.category);
+  }
+  if (opts.subcategory && opts.subcategory !== "all") {
+    list = list.filter((p) => p.subcategory === opts.subcategory);
   }
   if (typeof opts.maxPrice === "number") {
     list = list.filter((p) => p.price <= opts.maxPrice!);
@@ -137,14 +142,15 @@ export async function apiPlaceOrder(input: {
     (s, i) => s + i.product.price * i.quantity,
     0,
   );
+  const shippingFee = calcShipping(subtotal);
   const order: Order = {
     id: `ORD-${Date.now().toString(36).toUpperCase()}`,
     userEmail: input.user.email,
     customerName: input.shipping.fullName || input.user.name,
     items: input.items,
     subtotal,
-    shipping: 0,
-    total: subtotal,
+    shipping: shippingFee,
+    total: subtotal + shippingFee,
     shippingInfo: input.shipping,
     createdAt: new Date().toISOString(),
     estimatedDelivery: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000).toISOString(),
