@@ -16,6 +16,7 @@ function OrderDetail() {
   const router = useRouter();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+  const fallbackImage = "https://loremflickr.com/600/450/product?lock=404";
 
   useEffect(() => {
     if (authLoading) return;
@@ -67,7 +68,14 @@ function OrderDetail() {
         <ul className="divide-y divide-border" data-testid="order-detail-items">
           {order.items.map((i) => (
             <li key={i.product.id} className="flex items-center gap-4 py-3" data-testid="order-detail-item">
-              <img src={i.product.image} alt={i.product.name} className="h-16 w-16 rounded-md object-cover" />
+              <img
+                src={i.product.image}
+                alt={i.product.name}
+                onError={(e) => {
+                  e.currentTarget.src = fallbackImage;
+                }}
+                className="h-16 w-16 rounded-md object-cover"
+              />
               <div className="flex-1">
                 <p className="font-medium">{i.product.name}</p>
                 <p className="text-sm text-muted-foreground">Qty {i.quantity}</p>
