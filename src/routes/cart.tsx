@@ -9,6 +9,7 @@ export const Route = createFileRoute("/cart")({
 
 function CartPage() {
   const { cart, updateQty, removeFromCart, cartSubtotal, user } = useApp();
+  const fallbackImage = "https://loremflickr.com/600/450/product?lock=404";
 
   if (cart.length === 0) {
     return (
@@ -42,6 +43,9 @@ function CartPage() {
               <img
                 src={item.product.image}
                 alt={item.product.name}
+                onError={(e) => {
+                  e.currentTarget.src = fallbackImage;
+                }}
                 className="h-24 w-24 rounded-lg object-cover"
               />
               <div className="flex flex-1 flex-col">

@@ -21,6 +21,7 @@ export const Route = createFileRoute("/")({
 
 function Home() {
   const { addToCart } = useApp();
+  const fallbackImage = "https://loremflickr.com/600/450/product?lock=404";
   const { data: featured = [], isLoading } = useQuery({
     queryKey: ["products", "featured"],
     queryFn: () => apiListProducts({ sort: "rating-desc" }).then((p) => p.slice(0, 6)),
@@ -139,6 +140,9 @@ function Home() {
                     src={p.image}
                     alt={p.name}
                     loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.src = fallbackImage;
+                    }}
                     className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                 </div>

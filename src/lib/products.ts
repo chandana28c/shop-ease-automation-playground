@@ -73,14 +73,19 @@ export const SUBCATEGORY_TO_CATEGORY: Record<Subcategory, Category> = {
 };
 
 // ---------- Product image generator ----------
-// We use Pollinations AI image generation so every product gets a UNIQUE
-// image that matches its own name/description. The seed is derived from the
-// product id so the same product always shows the same image, and no two
-// products share a picture.
-const img = (prompt: string, seed: number) => {
-  const styled = `${prompt}, professional product photography, studio lighting, clean white background, high detail, centered, catalogue shot`;
-  const encoded = encodeURIComponent(styled);
-  return `https://image.pollinations.ai/prompt/${encoded}?width=600&height=450&nologo=true&seed=${seed}&model=flux`;
+// Use stable, seeded product-photo URLs instead of on-demand AI image URLs.
+// On-demand generators can be slow, temporarily unavailable, or blocked by the
+// browser, which leaves product cards blank in the preview.
+const img = (keyword: string, seed: number) => {
+  const terms = keyword
+    .replace(/\+/g, ",")
+    .replace(/[^a-z0-9, -]/gi, "")
+    .replace(/\s+/g, ",")
+    .replace(/,+/g, ",")
+    .replace(/^,|,$/g, "")
+    .toLowerCase();
+
+  return `https://loremflickr.com/600/450/${encodeURIComponent(terms || "product")}?lock=${seed}`;
 };
 
 interface Seed {
@@ -307,7 +312,7 @@ function build(): Product[] {
         price: s.price,
         rating: s.rating,
         stock: 15 + ((_idCounter * 7) % 60),
-        image: img(`${s.name} — ${s.description}`, _idCounter * 9973),
+        image: img(s.keyword, _idCounter * 9973),
         description: s.description,
       });
     });
