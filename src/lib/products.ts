@@ -373,7 +373,7 @@ let _idCounter = 0;
 function build(): Product[] {
   const out: Product[] = [];
   for (const sub of Object.keys(SEEDS) as Subcategory[]) {
-    SEEDS[sub].forEach((s) => {
+    SEEDS[sub].forEach((s, idx) => {
       _idCounter++;
       const id = `p${_idCounter}`;
       out.push({
