@@ -99,6 +99,8 @@ function ProductsPage() {
     return "All products";
   }, [search]);
 
+  const fallbackImage = "https://loremflickr.com/600/450/product?lock=404";
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 animate-fade-in" data-testid="products-page">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -215,6 +217,9 @@ function ProductsPage() {
                 src={p.image}
                 alt={p.name}
                 loading="lazy"
+                onError={(e) => {
+                  e.currentTarget.src = fallbackImage;
+                }}
                 className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
               />
             </div>
