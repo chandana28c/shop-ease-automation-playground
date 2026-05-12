@@ -72,92 +72,15 @@ export const SUBCATEGORY_TO_CATEGORY: Record<Subcategory, Category> = {
   fiction: "books", nonfiction: "books", education: "books",
 };
 
-// ---------- Product generator ----------
-// Curated Unsplash photo IDs per subcategory so every product gets a
-// topical, real photograph instead of a random/irrelevant one.
-const UNSPLASH_POOL: Record<Subcategory, string[]> = {
-  mobiles: [
-    "1511707171634-5f897ff02aa9", "1592899677977-9c10ca588bbd",
-    "1598327105666-5b89351aff97", "1565849904461-04a58ad377e0",
-    "1574944985070-8f3ebc6b79d2", "1556656793-08538906a9f8",
-    "1580910051074-3eb694886505", "1605236453806-6ff36851218e",
-    "1546054454-aa26e2b734c7", "1512054502232-10a0a035d672",
-  ],
-  laptops: [
-    "1496181133206-80ce9b88a853", "1517336714731-489689fd1ca8",
-    "1541807084-5c52b6b3adef", "1593642632559-0c6d3fc62b89",
-    "1588872657578-7efd1f1555ed", "1531297484001-80022131f5a1",
-    "1484788984921-03950022c9ef", "1525547719571-a2d4ac8945e2",
-  ],
-  audio: [
-    "1505740420928-5e560c06d30e", "1583394838336-acd977736f90",
-    "1546435770-a3e426bf472b", "1484704849700-f032a568e944",
-    "1558756520-22cfe5d382ca", "1572569511254-d8f925fe2cbb",
-    "1610465299996-30f240ac2b1c", "1487215078519-e21cc028cb29",
-  ],
-  men: [
-    "1602810318383-e386cc2a3ccf", "1521572163474-6864f9cf17ab",
-    "1593030761757-71fae45fa0e7", "1516257984-b1b4d707412e",
-    "1591047139829-d91aecb6caea", "1542272604-787c3835535d",
-    "1552374196-1ab2a1c593e8", "1507003211169-0a1dd7228f2d",
-    "1490578474895-699cd4e2cf59", "1620799140408-edc6dcb6d633",
-  ],
-  women: [
-    "1490481651871-ab68de25d43d", "1612336307429-8a898d10e223",
-    "1539109136881-3be0616acf4b", "1483985988355-763728e1935b",
-    "1469334031218-e382a71b716b", "1496747611176-843222e1e57c",
-    "1581044777550-4cfa60707c03", "1551489186-cf8726f514f8",
-    "1503342217505-b0a15ec3261c", "1495121605193-b116b5b9c5fe",
-  ],
-  kids: [
-    "1622290291468-a28f7a7dc6a8", "1518831959646-742c3a14ebf7",
-    "1503944583220-79d8926ad5e2", "1519238263530-99bdd11df2ea",
-    "1565084888279-aca607ecce0c", "1543854704-783ed0a6b75b",
-    "1514090458221-65bb69cf63e6", "1543702719-15c40e9d65a4",
-  ],
-  kitchen: [
-    "1556909114-f6e7ad7d3136", "1565538810643-b5bdb714032a",
-    "1574781330855-d0db8cc6a79c", "1583778176476-4a8b02a64c01",
-    "1591291621164-2c6367723315", "1556910103-1c02745aae4d",
-    "1585155770447-2f66e2a397b5", "1592156328196-1cbb7a91ef8a",
-    "1517248135467-4c7edcad34c4", "1556910637-29d804023fac",
-  ],
-  decor: [
-    "1513519245088-0e12902e5a38", "1503602642458-232111445657",
-    "1493663284031-b7e3aefcae8e", "1519710164239-da123dc03ef4",
-    "1567225557594-88d73e55f2cb", "1556228720-195a672e8a03",
-    "1542621334-a254cf47733d", "1505691938895-1758d7feb511",
-  ],
-  furniture: [
-    "1555041469-a586c61ea9bc", "1567538096630-e0c55bd6374c",
-    "1505693416388-ac5ce068fe85", "1540574163026-643ea20ade25",
-    "1493663284031-b7e3aefcae8e", "1538688525198-9b88f6f53126",
-    "1549497538-303791108f95", "1592078615290-033ee584e267",
-  ],
-  fiction: [
-    "1543002588-bfa74002ed7e", "1512820790803-83ca734da794",
-    "1495446815901-a7297e633e8d", "1474932430478-367dbb6832c1",
-    "1519682337058-a94d519337bc", "1497633762265-9d179a990aa6",
-    "1532012197267-da84d127e765", "1456513080510-7bf3a84b82f8",
-  ],
-  nonfiction: [
-    "1544716278-ca5e3f4abd8c", "1530538987395-032d1800fdd4",
-    "1491841550275-ad7854e35ca6", "1518373714866-3f1478910cc0",
-    "1524995997946-a1c2e315a42f", "1457369804613-52c61a468e7d",
-    "1535905557558-afc4877a26fc", "1488190211105-8b0e65b80b4e",
-  ],
-  education: [
-    "1497633762265-9d179a990aa6", "1456513080510-7bf3a84b82f8",
-    "1481627834876-b7833e8f5570", "1503676260728-1c00da094a0b",
-    "1509062522246-3755977927d7", "1456406644174-8ddd4cd52a06",
-    "1532153975070-2e9ab71f1b14", "1571260899304-425eee4c7efc",
-  ],
-};
-
-const img = (sub: Subcategory, index: number) => {
-  const pool = UNSPLASH_POOL[sub];
-  const id = pool[index % pool.length];
-  return `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=600&h=450&q=80`;
+// ---------- Product image generator ----------
+// We use Pollinations AI image generation so every product gets a UNIQUE
+// image that matches its own name/description. The seed is derived from the
+// product id so the same product always shows the same image, and no two
+// products share a picture.
+const img = (prompt: string, seed: number) => {
+  const styled = `${prompt}, professional product photography, studio lighting, clean white background, high detail, centered, catalogue shot`;
+  const encoded = encodeURIComponent(styled);
+  return `https://image.pollinations.ai/prompt/${encoded}?width=600&height=450&nologo=true&seed=${seed}&model=flux`;
 };
 
 interface Seed {
