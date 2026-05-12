@@ -384,7 +384,7 @@ function build(): Product[] {
         price: s.price,
         rating: s.rating,
         stock: 15 + ((_idCounter * 7) % 60),
-        image: img(s.keyword, _idCounter),
+        image: img(sub, idx),
         description: s.description,
       });
     });
