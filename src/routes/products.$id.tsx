@@ -46,6 +46,7 @@ function ProductDetail() {
   }
 
   const category = CATEGORIES.find((c) => c.slug === product.category)?.label ?? product.category;
+  const fallbackImage = "https://loremflickr.com/600/450/product?lock=404";
 
   return (
     <div
@@ -57,6 +58,9 @@ function ProductDetail() {
         <img
           src={product.image}
           alt={product.name}
+          onError={(e) => {
+            e.currentTarget.src = fallbackImage;
+          }}
           className="aspect-[4/3] w-full rounded-2xl border border-border object-cover shadow-sm"
           data-testid="product-image"
         />
