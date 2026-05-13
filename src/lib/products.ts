@@ -122,7 +122,7 @@ const PRODUCT_IMAGE_URLS: Record<Subcategory, string[]> = {
     "https://cdn.dummyjson.com/product-images/mobile-accessories/apple-airpods-max-silver/1.webp",
     "https://cdn.dummyjson.com/product-images/mobile-accessories/apple-airpods-max-silver/1.webp",
     "https://cdn.dummyjson.com/product-images/mobile-accessories/apple-airpods/1.webp",
-    "https://cdn.dummyjson.com/product-images/mobile-accessories/beats-flex-wireless-earphones/2.webp",
+    "https://cdn.dummyjson.com/product-images/mobile-accessories/apple-airpods/2.webp",
     "https://cdn.dummyjson.com/product-images/mobile-accessories/apple-homepod-mini-cosmic-grey/1.webp",
     "https://cdn.dummyjson.com/product-images/mobile-accessories/amazon-echo-plus/1.webp",
     "https://cdn.dummyjson.com/product-images/mobile-accessories/apple-homepod-mini-cosmic-grey/1.webp",
