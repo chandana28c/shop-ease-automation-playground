@@ -72,22 +72,6 @@ export const SUBCATEGORY_TO_CATEGORY: Record<Subcategory, Category> = {
   fiction: "books", nonfiction: "books", education: "books",
 };
 
-// ---------- Product image generator ----------
-// Use stable, seeded product-photo URLs instead of on-demand AI image URLs.
-// On-demand generators can be slow, temporarily unavailable, or blocked by the
-// browser, which leaves product cards blank in the preview.
-const img = (keyword: string, seed: number) => {
-  const terms = keyword
-    .replace(/\+/g, ",")
-    .replace(/[^a-z0-9, -]/gi, "")
-    .replace(/\s+/g, ",")
-    .replace(/,+/g, ",")
-    .replace(/^,|,$/g, "")
-    .toLowerCase();
-
-  return `https://loremflickr.com/600/450/${encodeURIComponent(terms || "product")}?lock=${seed}`;
-};
-
 interface Seed {
   name: string;
   price: number; // INR
@@ -95,6 +79,44 @@ interface Seed {
   description: string;
   keyword: string;
 }
+
+// ---------- Product image generator ----------
+// Build product-specific AI image URLs from each item's name, description, and
+// subcategory, avoiding generic/random image pools that mismatch the catalog.
+const IMAGE_STYLE_BY_SUBCATEGORY: Record<Subcategory, string> = {
+  mobiles: "real smartphone product photography, front and back device views, screen visible",
+  laptops: "real laptop product photography, open laptop at three-quarter angle, keyboard and screen visible",
+  audio: "real audio gadget product photography, headphones earbuds or speaker clearly visible",
+  men: "fashion ecommerce product photography, garment or accessory clearly visible on mannequin or flat lay",
+  women: "fashion ecommerce product photography, garment or accessory clearly visible on mannequin or flat lay",
+  kids: "kids clothing ecommerce product photography, colorful garment or shoes clearly visible on flat lay",
+  kitchen: "kitchen product photography, cookware appliance or utensil centered on a clean counter",
+  decor: "home decor product photography, decorative object styled in a bright interior",
+  furniture: "furniture catalog photography, full furniture piece visible in a simple room setting",
+  fiction: "paperback novel product photography, genre-inspired cover artwork, front cover visible",
+  nonfiction: "nonfiction book product photography, subject-appropriate cover art, front cover visible",
+  education: "education textbook product photography, study desk setting, subject-specific academic cues",
+};
+
+const cleanPromptPart = (value: string) =>
+  value
+    .replace(/\+/g, " ")
+    .replace(/[“”"]/g, "")
+    .replace(/[^a-z0-9.,&/ -]/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const img = (product: Pick<Seed, "name" | "description" | "keyword">, subcategory: Subcategory, seed: number) => {
+  const prompt = [
+    `high resolution ecommerce catalog photo of ${cleanPromptPart(product.name)}`,
+    cleanPromptPart(product.description),
+    `exact product type: ${cleanPromptPart(product.keyword)}`,
+    IMAGE_STYLE_BY_SUBCATEGORY[subcategory],
+    "single main product centered, realistic lighting, plain neutral studio background, no unrelated objects, no watermark, no logo, not a collage",
+  ].join(", ");
+
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=600&height=450&seed=${seed}&nologo=true&enhance=true&model=flux`;
+};
 
 const SEEDS: Record<Subcategory, Seed[]> = {
   // ===== ELECTRONICS =====
